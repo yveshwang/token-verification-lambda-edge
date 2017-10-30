@@ -49,14 +49,3 @@ jwstest(header, payload);
 jwttest(header, payload);
 decode(header, payload);
 handle.processViwerRequest({"something":"something"}, {"blah":"blah"}, hellooo);
-
-normaliseTest("/");
-normaliseTest("whatever");
-normaliseTest("/whatever");
-normaliseTest("//whatever");
-normaliseTest("/WHATVER");
-normaliseTest("/something#heyhey");
-
-normaliseQueryTest("color=red&size=large");
-normaliseQueryTest("size=large&color=red");
-normaliseQueryTest("SIzE=large&COLOR=red");
