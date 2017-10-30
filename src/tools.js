@@ -1,13 +1,21 @@
 'use strict;'
+const encoding = 'utf8';
+const secret = 'secret';
+
 const path = require('path');
 const querystring = require('querystring');
 const base64url = require('base64url');
 const jwt = require('jsonwebtoken');
 const normalize = require('normalize-url');
+const jws = require('jws');
+
 /* module block */
 module.exports = {
   normaliseURI: normaliseURI,
-  verifyToken: verifyToken,
+  signTokenJWS: signTokenJWS,
+  signTokenJWT: signTokenJWT,
+  verifyTokenJWS: verifyTokenJWS,
+  verifyTokenJWT: verifyTokenJWT,
   normaliseQuerystring: normaliseQuerystring
 }
 
@@ -17,20 +25,34 @@ function normaliseURI(uri) {
     //if the first char doesnt start with '/', append it
     lowercase = '/' + lowercase;
   }
-  let normalized = normalize(lowercase,
-    {
+  let normalized = normalize(lowercase, {
       stripFragment: false,
       normalizeProtocol: false,
-      removeTrailingSlash: true
-    });
-    if( normalized === '' || normalized === ' ') {
-      return '/';
-    } else return normalized;
+      removeTrailingSlash: true });
+  if( normalized === '' || normalized === ' ') return '/';
+  else return normalized;
 }
 
-function verifyToken(expectedtoken, secret) {
-  console.log(token);
-  return "whatever";
+function signTokenJWS(header, payload) {
+  // using jws implementation
+  let token = jws.sign( { header: header,
+      payload: JSON.stringify(payload),
+      secret: secret,
+      encoding: encoding
+    });
+  return token;
+}
+
+function signTokenJWT(header, payload, secret) {
+
+}
+
+function verifyTokenJWS(){
+
+}
+
+function verifyTokenJWT(){
+
 }
 
 function normaliseQuerystring(query) {

@@ -1,5 +1,6 @@
 'use strict;'
 const chai = require('chai');
+const secret = "secret";
 var expect = chai.expect;
 var tools = require('./../../src/tools.js');
 const uriInputs =  [
@@ -48,4 +49,14 @@ describe('tools.normaliseQuerystring', function() {
     });
   };
   queryInputs.map( x => { queryTest(x.in, x.ex)});
+});
+
+describe('tools.signTokenJWS', function() {
+  let header = {alg:"HS256",typ:"JWT"};
+  let payload = {sub:"1234567890",name:"John Doe",admin:true};
+  let expected = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
+  it(JSON.stringify(header) + " and " + JSON.stringify(payload) +
+    " should hash to " + expected, function() {
+      expect( tools.signTokenJWS(header, payload, secret)).to.equal(expected);
+    });
 });
