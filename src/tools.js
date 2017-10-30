@@ -3,7 +3,7 @@ const path = require('path');
 const querystring = require('querystring');
 const base64url = require('base64url');
 const jwt = require('jsonwebtoken');
-
+const normalize = require('normalize-url');
 /* module block */
 module.exports = {
   normaliseURI: normaliseURI,
@@ -12,7 +12,20 @@ module.exports = {
 }
 
 function normaliseURI(uri) {
-  return path.normalize(uri).toLowerCase();
+  let lowercase = path.normalize(uri.trim().replace(/\s/g, "")).toLowerCase();
+  if( lowercase.length >= 1 && lowercase.charAt(0) != '/') {
+    //if the first char doesnt start with '/', append it
+    lowercase = '/' + lowercase;
+  }
+  let normalized = normalize(lowercase,
+    {
+      stripFragment: false,
+      normalizeProtocol: false,
+      removeTrailingSlash: true
+    });
+    if( normalized === '' || normalized === ' ') {
+      return '/';
+    } else return normalized;
 }
 
 function verifyToken(expectedtoken, secret) {

@@ -4,12 +4,14 @@
   "description": "edge side processing with lambda",
   "main": "handle.js",
   "scripts": {
-    "start": "node handle.js"
+    "start": "node handle.js",
+    "test": "./node_modules/.bin/mocha --recursive --reporter spec"
   },
   "dependencies": {
     "base64url": "^2.0.0",
     "jsonwebtoken": "^8.1.0",
     "jws": "^3.1.4",
+    "normalize-url": "^1.9.1",
     "path": "^0.12.7",
     "querystring": "^0.2.0"
   },
@@ -31,5 +33,9 @@
   "contributors": [
     "Yves Hwang <yveshwang@gmail.com> (http://macyves.wordpress.com)"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
+  }
 }

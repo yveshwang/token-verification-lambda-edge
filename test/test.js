@@ -1,10 +1,12 @@
 'use strict;'
 
-const handle = require('./handle.js');
-const tools = require('./tools.js');
+const handle = require('./../src/handle.js');
+const tools = require('./../src/tools.js');
 const jwt = require('jsonwebtoken');
 const jws = require('jws');
 const base64url = require('base64url');
+
+const secret = "secret";
 
 function hellooo(something, blah) {
   console.log("hellooo");
@@ -27,18 +29,18 @@ function jwstest(header, payload){
   var token = jws.sign(
     { header: header,
       payload: JSON.stringify(payload),
-      secret:"secret",
+      secret: secret,
       encoding: 'utf8'
     });
   console.log(token);
 }
 function jwttest(header, payload) {
-  var token = jwt.sign(payload, "secret", {noTimestamp:true});
+  var token = jwt.sign(payload, secret, {noTimestamp:true});
   console.log(token);
 }
 function decode(header, payload) {
   var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
-  var decoded = jwt.verify(token, "secret");
+  var decoded = jwt.verify(token, secret);
   console.log(decoded);
   console.log(decoded.header);
   console.log(decoded.payload);
