@@ -1,0 +1,35 @@
+{
+  "name": "token-verification-lambda",
+  "version": "0.0.1",
+  "description": "edge side processing with lambda",
+  "main": "handle.js",
+  "scripts": {
+    "start": "node handle.js"
+  },
+  "dependencies": {
+    "base64url": "^2.0.0",
+    "jsonwebtoken": "^8.1.0",
+    "jws": "^3.1.4",
+    "path": "^0.12.7",
+    "querystring": "^0.2.0"
+  },
+  "engines": {
+    "node": "6.10.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yveshwang/token-verification-lambda-edge"
+  },
+  "keywords": [
+    "node",
+    "lambda",
+    "cf",
+    "cloudfront",
+    "token"
+  ],
+  "author": "Yves Hwang",
+  "contributors": [
+    "Yves Hwang <yveshwang@gmail.com> (http://macyves.wordpress.com)"
+  ],
+  "license": "MIT"
+}
