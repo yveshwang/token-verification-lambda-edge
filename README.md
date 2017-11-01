@@ -4,14 +4,17 @@ A simple lambda function illustrating how one can verify JWT tokens as processed
 # dependencies
 See `package.json`.
 
-# how to run
-to get started quickly. fiddling with the `jsonwebtoken` library, comparing it with `jws`.
+# how to..
 ```
+# install dependencies
 npm install
-node test.js
-```
 
-# how to test
+# run unit tests
+npm test
+
+# watch unit tests
+npm run-script test-watch
+```
 
 # deployment
 
