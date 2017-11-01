@@ -1,6 +1,6 @@
 'use strict;'
 
-const handle = require('./../src/handle.js');
+const handle = require('./../../src/handle.js');
 
 function hellooo(something, blah) {
   console.log("hellooo");
