@@ -1,9 +1,11 @@
 'use strict;'
-
+const chai = require('chai');
+const expect = chai.expect;
 const handle = require('./../../src/handle.js');
 
-function hellooo(something, blah) {
-  console.log("hellooo");
-}
-
-handle.processViwerRequest({"something":"something"}, {"blah":"blah"}, hellooo);
+describe('handler.processViwerRequest tests', function() {
+  it("simple test", function() {
+    var result = handle.processViwerRequest(null, null);
+    expect(result).to.equal("hello");
+  });
+});
