@@ -1,5 +1,6 @@
 'use strict;'
 const chai = require('chai');
+const fs = require('fs');
 const base64url = require('base64url');
 const secret = "secret";
 const header = {alg:"HS256",typ:"JWT"};
@@ -296,5 +297,32 @@ describe('tools.verifyTokenJWT - functional test', function() {
     let testpayload = {sub:"1234567890",name:"John Doe",admin:true,iat:iat};
     let testtoken = tools.signTokenJWT(testpayload, secret, false);
     expect( tools.verifyTokenJWT(testtoken, secret, null, null, null, null, null, null, '1h', tweakedtime)).to.equal(false);
+  });
+  it( "real use case.", function() {
+    let sub = "id";
+    let aud = "no";
+    let iss = "urn:companyname:productname";
+    let iat = 1509651096;
+    let nbf = 1509650575;
+    let exp = 1609651096;
+    let testpayload = {sub:sub,aud:aud,iss:iss,nbf:nbf,name:"John Doe",admin:true,exp:exp,iat:iat};
+    // console.log(testpayload);
+    let testtoken = tools.signTokenJWT(testpayload, secret, false);
+    // console.log(testtoken);
+    let acceptedaud= ['dk', 'no'];
+    let acceptedsub = "id";
+    let acceptediss = iss;
+    // function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+    expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
+  });
+  it( "real use case from payload.data", function() {
+    let obj = JSON.parse(fs.readFileSync('./payload.data', 'utf8'));
+    //console.log(obj);
+    let testtoken = tools.signTokenJWT(obj, secret, false);
+    let acceptedaud= ['dk', 'no'];
+    let acceptedsub = "id";
+    let acceptediss = "urn:companyname:productname";
+    // function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+    expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
 });

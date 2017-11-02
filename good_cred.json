@@ -1,0 +1,37 @@
+{
+  "Records": [
+    {
+      "cf": {
+        "config": {
+          "distributionId": "EDFDVBD6EXAMPLE"
+        },
+        "request": {
+          "clientIp": "2001:0db8:85a3:0:0:8a2e:0370:7334",
+          "method": "GET",
+          "uri": "/picture.jpg",
+          "querystring": "color=red&size=large",
+          "headers": {
+            "host": [
+              {
+                "key": "Host",
+                "value": "d111111abcdef8.cloudfront.net"
+              }
+            ],
+            "user-agent": [
+              {
+                "key": "User-Agent",
+                "value": "curl/7.51.0"
+              }
+            ],
+            "authorization": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTA5NjUwNTc1LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjoxNjA5NjUxMDk2LCJpYXQiOjE1MDk2NTEwOTZ9.x309s0X7bipKKY3UYSD6R9dg_ndgaoAluNfBnKzwE4U"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
