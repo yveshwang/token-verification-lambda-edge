@@ -168,35 +168,62 @@ describe('handler.processViwerRequest tests', function() {
   });
   it("normalise querystring and uri with valid bearer token, wrong secret", function() {
     let event = clone(requesteventjson);
-    event = clone(requesteventjson);
     event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
 
     let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
     expect(result).to.equal(errorresponse);
   });
   it("basic_good_cred.json", function() {
-    let obj = JSON.parse(fs.readFileSync('./basic_good_cred.json', 'utf8'));
+    let obj = JSON.parse(fs.readFileSync('./test/basic_good_cred.json', 'utf8'));
     //console.log(JSON.stringify(obj, null, 2));
     let result = test(obj, 'secret', errorresponse, null, null, null, null, null, null, null, null);
     expect(result).to.equal(null);
   });
   it("payload.data", function() {
-    let payload = JSON.parse(fs.readFileSync('./payload.data', 'utf8'));
+    let payload = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
     let testtoken = tools.signTokenJWT(payload, 'secret', false);
     expect( tools.verifyTokenJWT(testtoken, 'secret', ['no', 'dk'], 'urn:companyname:productname', false, false, 'id', 0, '30d', null)).to.equal(true);
     //console.log(JSON.stringify(obj, null, 2));
     let event = clone(requesteventjson);
     let bearervalue = "Bearer " + testtoken;
     event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
-    console.log(JSON.stringify(event, null, 2));
+    // console.log(JSON.stringify(event, null, 2));
     let result = test(event, 'secret', errorresponse, 'no', 'urn:companyname:productname', false, false, 'id', 0, '30d', null);
     expect(result).to.equal(null);
   });
   it("good_cred.json, with correct aud and iss and maxtime etc", function() {
-    let obj = JSON.parse(fs.readFileSync('./good_cred.json', 'utf8'));
+    let obj = JSON.parse(fs.readFileSync('./test/good_cred.json', 'utf8'));
     //console.log(JSON.stringify(obj, null, 2));
     // example function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
     let result = test(obj, 'secret', errorresponse, 'no', 'urn:companyname:productname', false, false, 'id', 0, '30d', null);
     expect(result).to.equal(null);
+  });
+  it("check req-id, x-req-id, present in event", function() {
+    let testreqid = 'xGN7KWpVEmB9Dp7ctcVFQC4E-nrcOcEKS3QyAez--06dV7TEXAMPLE==';
+    let event = clone(requesteventjson);
+    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    event.Records[0].cf.config.requestId = testreqid;
+    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
+    expect(event.Records[0].cf.config.requestId).to.equal(testreqid);
+    expect(event.Records[0].cf.request.headers['x-req-id'][0].value).equal(testreqid);
+    expect(result).to.equal(errorresponse);
+  });
+  it("check req-id, x-req-id, not present in event", function() {
+    let event = clone(requesteventjson);
+    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
+    expect(event.Records[0].cf.config.requestId).to.equal(undefined);
+    expect(event.Records[0].cf.request.headers['x-req-id'][0].value.length).to.equal(32); //32 char length for the md5 hash
+    expect(result).to.equal(errorresponse);
+  });
+  it("check req-id, x-req-id, empty reqid present in event", function() {
+    let event = clone(requesteventjson);
+    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let emptyvalue = "   ";
+    event.Records[0].cf.config.requestId = emptyvalue;
+    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
+    expect(event.Records[0].cf.config.requestId).to.equal(emptyvalue);
+    expect(event.Records[0].cf.request.headers['x-req-id'][0].value.length).to.equal(32); //32 char length for the md5 hash
+    expect(result).to.equal(errorresponse);
   });
 });

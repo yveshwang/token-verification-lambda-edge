@@ -316,7 +316,7 @@ describe('tools.verifyTokenJWT - functional test', function() {
     expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
   it( "real use case from payload.data", function() {
-    let obj = JSON.parse(fs.readFileSync('./payload.data', 'utf8'));
+    let obj = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
     //console.log(obj);
     let testtoken = tools.signTokenJWT(obj, secret, false);
     let acceptedaud= ['dk', 'no'];
