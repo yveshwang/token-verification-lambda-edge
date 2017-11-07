@@ -24,11 +24,16 @@ const defaulthappyresponse = {
 /* export handler block for lmabda*/
 exports.handler = (event, context, callback) => {
   console.log('started lambda function');
-  var result = handle.processViewerRequest(event, unauthorisedresponse, options);
-  let request = event.Records[0].cf.request;
-  if( result === unauthorisedresponse) {
-    callback(null, unauthorisedresponse);
+  console.log(event, null, 2);
+  if( event.path === '/edge') {
+    callback(null, defaulthappyresponse);
   } else {
-    callback(null, request);
+    var result = handle.processViewerRequest(event, unauthorisedresponse, options);
+    let request = event.Records[0].cf.request;
+    if( result === unauthorisedresponse) {
+      callback(null, unauthorisedresponse);
+    } else {
+      callback(null, request);
+    }
   }
 }

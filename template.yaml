@@ -7,3 +7,11 @@ Resources:
     Properties:
       Handler: index.handler
       Runtime: nodejs6.10
+      Tracing: Active
+      CodeUri: ./
+      Events:
+        GetResources:
+          Type: Api
+          Properties:
+            Path: /edge
+            Method: get

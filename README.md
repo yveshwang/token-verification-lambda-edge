@@ -76,6 +76,10 @@ sam local invoke "Edge" -e test/good_cred.json
 
 # boo!
 sam local invoke "Edge" -e test/bad_cred.json
+
+# test as Api, then test it
+sam local start-api         # then test via curl http://127.0.0.1:3000/edge
+
 ```
 # deployment
 
