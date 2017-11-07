@@ -9,10 +9,27 @@ module.exports = {
   processOriginRequest: processOriginRequest,
   processOriginResponse: processOriginResponse,
   processViewerResponse: processViewerResponse,
+  verifyToken: verifyToken,
   extractBearerToken: extractBearerToken
 }
 
-function processViewerRequest(event, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+function verifyToken(event, headername, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+  let request = event.Records[0].cf.request;
+  let headers = request.headers;
+
+  //verify token if exists
+  if( headers[headername] !== undefined && 0 < headers[headername].length ) {
+    let token = extractBearerToken(headers[headername][0].value);
+    if( !tools.verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp)) {
+      //return error
+      return errorresponse;
+    }
+  }
+  // proceeds as normal
+  return null;
+}
+
+function processViewerRequest(event, errorresponse, options) {
   //normalise query string
   let request = event.Records[0].cf.request;
   let headers = request.headers;
@@ -27,17 +44,9 @@ function processViewerRequest(event, secret, errorresponse, audience, issuer, ig
   request.querystring = tools.normaliseQuerystring(request.querystring);
   request.uri = tools.normaliseURI(request.uri);
 
-  //verify token if exists
-  if( headers['authorization'] !== undefined && 0 < headers['authorization'].length ) {
-    let token = extractBearerToken(headers['authorization'][0].value);
-    if( !tools.verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp)) {
-      //return error
-      return errorresponse;
-    }
-  }
-
-  // proceeds as normal
-  return null;
+  //verify specified tokens
+  return results =  options.map( x => { return verifyToken(event, x.headername, x.secret, errorresponse, x.audience, x.issuer, x.ignoreExpiration, x.ignoreNotBefore, x.subject, x.clockTolerance, x.maxAge, x.clockTimestamp)})
+                           .reduce( (previous, element) => { if(element !== null || previous !== null) return ( previous !== null ? previous : element); else return null;});
 }
 
 function processOriginRequest(event) {

@@ -91,6 +91,13 @@ const responseventjson = { // triggered by CF viewer response or an origin respo
     ]
 };
 
+const bearervalue = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
+const errorresponse = {
+        statusCode: 401,
+        headers: { "x-custom-header" : "naughty bad client" },
+        body: "meh"
+};
+
 function clone(json) {
   return JSON.parse(JSON.stringify(json));
 }
@@ -109,7 +116,6 @@ describe('extract 1 bearer tokens.', function() {
     let bearervalue = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6MTUwOTUzOTM1MCwiaWF0IjoxNTA5NTM5MzUwfQ.bZRllqyhVovxDPmzhZd2UE2ecb7LTyKTCF3FoFdKUFI";
     let result = handle.extractBearerToken(bearervalue);
     expect(result).to.equal('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImV4cCI6MTUwOTUzOTM1MCwiaWF0IjoxNTA5NTM5MzUwfQ.bZRllqyhVovxDPmzhZd2UE2ecb7LTyKTCF3FoFdKUFI')
-    //console.log(JSON.stringify(request, null, 2));
   });
 });
 
@@ -137,46 +143,15 @@ describe('empty auth header value', function() {
     //console.log("key is: "+ headervalue[0].key);
   });
 });
-
-describe('handler.processViwerRequest tests', function() {
-  let bearervalue = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
-  let errorresponse = {
-          statusCode: 401,
-          headers: { "x-custom-header" : "naughty bad client" },
-          body: "meh"
-  };
-  // function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
-  function test(testevent, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
-    testevent.Records[0].cf.request.uri = '/////Whatever';
-    return handle.processViewerRequest(testevent, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp);
+describe('handler.verifyToken tests', function() {
+  function testAuthorizationHeader(testevent, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+    testevent.Records[0].cf.request.uri = '/';
+    return handle.verifyToken(testevent, 'authorization', secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp);
   }
-  it("normalise querystring and uri", function() {
-    let event = clone(requesteventjson);
-    let result = test(event);
-    expect(result).to.equal(null);
-    expect(event.Records[0].cf.request.querystring).to.equal('color=red&size=large');
-    expect(event.Records[0].cf.request.uri).to.equal('/whatever');
-    //expect(result).to.equal("hello");
-  });
-  it("normalise querystring and uri with valid bearer token", function() {
-    let event = clone(requesteventjson);
-    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
-    //console.log(JSON.stringify(event, null, 2));
-    let result = test(event, 'secret', errorresponse, null, null, null, null, null, null, null, null);
-    // null is ok. proceed per normal.
-    expect(result).to.equal(null);
-  });
-  it("normalise querystring and uri with valid bearer token, wrong secret", function() {
-    let event = clone(requesteventjson);
-    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
-
-    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
-    expect(result).to.equal(errorresponse);
-  });
   it("basic_good_cred.json", function() {
     let obj = JSON.parse(fs.readFileSync('./test/basic_good_cred.json', 'utf8'));
     //console.log(JSON.stringify(obj, null, 2));
-    let result = test(obj, 'secret', errorresponse, null, null, null, null, null, null, null, null);
+    let result = testAuthorizationHeader(obj, 'secret', errorresponse, null, null, null, null, null, null, null, null);
     expect(result).to.equal(null);
   });
   it("payload.data", function() {
@@ -188,42 +163,120 @@ describe('handler.processViwerRequest tests', function() {
     let bearervalue = "Bearer " + testtoken;
     event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
     // console.log(JSON.stringify(event, null, 2));
-    let result = test(event, 'secret', errorresponse, 'no', 'urn:companyname:productname', false, false, 'id', 0, '30d', null);
+    let result = testAuthorizationHeader(event, 'secret', errorresponse, 'no', 'urn:companyname:productname', false, false, 'id', 0, '30d', null);
     expect(result).to.equal(null);
   });
   it("good_cred.json, with correct aud and iss and maxtime etc", function() {
     let obj = JSON.parse(fs.readFileSync('./test/good_cred.json', 'utf8'));
     //console.log(JSON.stringify(obj, null, 2));
     // example function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
-    let result = test(obj, 'secret', errorresponse, 'no', 'urn:companyname:productname', false, false, 'id', 0, '30d', null);
+    let result = testAuthorizationHeader(obj, 'secret', errorresponse, 'no', 'urn:companyname:productname', false, false, 'id', 0, '30d', null);
     expect(result).to.equal(null);
+  });
+});
+describe('handler.processViwerRequest tests', function() {
+  function testRequest(testevent, options) {
+    testevent.Records[0].cf.request.uri = '/////Whatever';
+    return handle.processViewerRequest(testevent, errorresponse, options);
+  }
+  it("normalise querystring and uri", function() {
+    let event = clone(requesteventjson);
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'secret'}]);
+    expect(result).to.equal(null);
+    expect(event.Records[0].cf.request.querystring).to.equal('color=red&size=large');
+    expect(event.Records[0].cf.request.uri).to.equal('/whatever');
+    expect(result).to.equal(null);
+  });
+  it("normalise querystring and uri with valid bearer token", function() {
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    //console.log(JSON.stringify(event, null, 2));
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'secret'}]);
+    // null is ok. proceed per normal.
+    expect(result).to.equal(null);
+  });
+  it("normalise querystring and uri with valid bearer token, wrong secret", function() {
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'wrongsecret'}]);
+    expect(result).to.equal(errorresponse);
   });
   it("check req-id, x-req-id, present in event", function() {
     let testreqid = 'xGN7KWpVEmB9Dp7ctcVFQC4E-nrcOcEKS3QyAez--06dV7TEXAMPLE==';
-    let event = clone(requesteventjson);
-    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
     event.Records[0].cf.config.requestId = testreqid;
-    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'wrongsecret'}]);
     expect(event.Records[0].cf.config.requestId).to.equal(testreqid);
     expect(event.Records[0].cf.request.headers['x-req-id'][0].value).equal(testreqid);
     expect(result).to.equal(errorresponse);
   });
   it("check req-id, x-req-id, not present in event", function() {
-    let event = clone(requesteventjson);
-    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
-    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'wrongsecret'}]);
     expect(event.Records[0].cf.config.requestId).to.equal(undefined);
     expect(event.Records[0].cf.request.headers['x-req-id'][0].value.length).to.equal(32); //32 char length for the md5 hash
     expect(result).to.equal(errorresponse);
   });
   it("check req-id, x-req-id, empty reqid present in event", function() {
-    let event = clone(requesteventjson);
-    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
     let emptyvalue = "   ";
     event.Records[0].cf.config.requestId = emptyvalue;
-    let result = test(event, 'wrongsecret', errorresponse, null, null, null, null, null, null, null, null);
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'wrongsecret'}]);
     expect(event.Records[0].cf.config.requestId).to.equal(emptyvalue);
     expect(event.Records[0].cf.request.headers['x-req-id'][0].value.length).to.equal(32); //32 char length for the md5 hash
+    expect(result).to.equal(errorresponse);
+  });
+  it("basic_good_cred.json", function() {
+    let obj = JSON.parse(fs.readFileSync('./test/basic_good_cred.json', 'utf8'));
+    let result = testRequest(obj, [{'headername': 'authorization', 'secret': 'secret'}]);
+    expect(result).to.equal(null);
+  });
+  it("payload.data", function() {
+    let payload = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
+    let testtoken = tools.signTokenJWT(payload, 'secret', false);
+    expect( tools.verifyTokenJWT(testtoken, 'secret', ['no', 'dk'], 'urn:companyname:productname', false, false, 'id', 0, '30d', null)).to.equal(true);
+    let bearervalue = "Bearer " + testtoken;
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    let result = testRequest(event, [{'headername': 'authorization', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null}]);
+    expect(result).to.equal(null);
+  });
+  it("good_cred.json, with correct aud and iss and maxtime etc", function() {
+    let obj = JSON.parse(fs.readFileSync('./test/good_cred.json', 'utf8'));
+    let result = testRequest(obj, [{'headername': 'authorization', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null}]);
+    expect(result).to.equal(null);
+  });
+  it("2 verifications, both valid", function() {
+    let payload = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
+    let testtoken = tools.signTokenJWT(payload, 'secret', false);
+    let bearervalue = "Bearer " + testtoken;
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    event = appendRequestToHeader(event, 'x-token', 'X-Token', bearervalue);
+    let result = testRequest(event, [
+                                      {'headername': 'authorization', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null},
+                                      {'headername': 'x-token', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null}
+                                    ]);
+    expect(result).to.equal(null);
+  });
+  it("2 verifications, only one valid bearer token", function() {
+    let payload = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
+    let testtoken = tools.signTokenJWT(payload, 'secret', false);
+    let bearervalue = "Bearer " + testtoken;
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    event = appendRequestToHeader(event, 'x-token', 'X-Token', 'invalid');
+    let result = testRequest(event, [
+                                      {'headername': 'authorization', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null},
+                                      {'headername': 'x-token', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null}
+                                    ]);
+    expect(result).to.equal(errorresponse);
+  });
+  it("2 verifications, only one valid secret token", function() {
+    let payload = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
+    let testtoken = tools.signTokenJWT(payload, 'secret', false);
+    let bearervalue = "Bearer " + testtoken;
+    let event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
+    event = appendRequestToHeader(event, 'x-token', 'X-Token', bearervalue);
+    let result = testRequest(event, [
+                                      {'headername': 'authorization', 'wrongsecret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null},
+                                      {'headername': 'x-token', 'secret': 'secret', 'audience': 'no', 'issuer':'urn:companyname:productname', 'ignoreExpiration': false, 'ignoreNotBefore': false, 'clockTolerance': 0, 'maxAge': '30d', 'clockTimestamp': null}
+                                    ]);
     expect(result).to.equal(errorresponse);
   });
 });
