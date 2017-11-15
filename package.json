@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node handle.js",
     "test": "./node_modules/.bin/mocha --recursive --reporter spec",
-    "test-watch": "./node_modules/.bin/mocha --recursive --reporter min --watch"
+    "test-watch": "./node_modules/.bin/mocha --recursive --reporter min --watch",
+    "dist": "rm -f lambda.zip; rm -rf ./node_modules ; npm install --production; zip -r lambda.zip ."
   },
   "dependencies": {
     "base64url": "^2.0.0",
