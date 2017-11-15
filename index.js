@@ -13,13 +13,62 @@ const options = [ {
   'maxAge': '30d',                              // default to 30 days. we can always issue refresh token.
   'clockTimestamp': null                        // use system time.
 }];
+
+const errorcontent = `
+<\!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>meh</title>
+  </head>
+  <body>
+    <p></p>
+  </body>
+</html>
+`;
+
+const okcontent = `
+<\!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>OK</title>
+  </head>
+  <body>
+    <p></p>
+  </body>
+</html>
+`;
+
 const unauthorisedresponse = {
-  statusCode: 401,
-  body: "meh"
+  status: 401,
+  statusDescription: "Unauthorized",
+  headers: {
+              'content-type': [{
+                  key: 'Content-Type',
+                  value: 'text/html'
+              }],
+              'content-encoding': [{
+                  key: 'Content-Encoding',
+                  value: 'UTF-8'
+              }],
+          },
+  body: errorcontent
 };
 const defaulthappyresponse = {
-  statusCode: 200,
-  body: "happy"
+  status: 200,
+  statusDescription: "OK",
+  headers: {
+              'content-type': [{
+                  key: 'Content-Type',
+                  value: 'text/html'
+              }],
+              'content-encoding': [{
+                  key: 'Content-Encoding',
+                  value: 'UTF-8'
+              }],
+          },
+  body: okcontent
 };
 /* export handler block for lmabda*/
 exports.handler = (event, context, callback) => {
