@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/yveshwang/token-verification-lambda-edge.svg?branch=master)](https://travis-ci.org/yveshwang/token-verification-lambda-edge)
+
 # token-verification-lambda-edge
 A simple lambda function illustrating how one can verify JWT tokens as processed by AWS Lambda@Edge
 
