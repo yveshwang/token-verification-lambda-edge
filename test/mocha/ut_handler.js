@@ -138,9 +138,6 @@ describe('empty auth header value', function() {
     let headervalue = [ { key: 'Authorization', value: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ' } ];
     let token = handle.extractBearerToken(headervalue[0].value);
     expect(token).to.equal('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ');
-    //console.log(headervalue);
-    //console.log("value is: " + headervalue[0].value);
-    //console.log("key is: "+ headervalue[0].key);
   });
 });
 describe('handler.verifyToken tests', function() {

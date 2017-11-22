@@ -1,5 +1,7 @@
 'use strict;'
 const handle = require('./src/handle.js');
+const tools = require('./src/tools.js');
+const verbose = true;
 
 const options = [ {
   'headername': 'authorization',                // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
@@ -41,8 +43,8 @@ const okcontent = `
 `;
 
 const unauthorisedresponse = {
-  status: 401,
-  statusDescription: "Unauthorized",
+  status: '401',
+  statusDescription: 'Unauthorized',
   headers: {
               'content-type': [{
                   key: 'Content-Type',
@@ -56,8 +58,8 @@ const unauthorisedresponse = {
   body: errorcontent
 };
 const defaulthappyresponse = {
-  status: 200,
-  statusDescription: "OK",
+  status: '200',
+  statusDescription: 'OK',
   headers: {
               'content-type': [{
                   key: 'Content-Type',
@@ -70,18 +72,65 @@ const defaulthappyresponse = {
           },
   body: okcontent
 };
+
+function log(label, input) {
+  if(verbose) {
+    console.log(label + "=" + input);
+  }
+}
+function issue() {
+  let payload = { "sub": "id",
+    "aud": "no",
+    "iss": "urn:companyname:productname",
+    "nbf": 1509650575,
+    "name": "John Doe",
+    "admin": true,
+    "exp": 1609651096,
+    "iat": 1509651096
+  };
+  let systime = Math.floor(Date.now() / 1000);
+  payload.iat = systime;
+  payload.exp = systime + 1000000000;
+  payload.nbf = systime - 1000000;
+  return tools.signTokenJWT(payload, 'secret', false);
+}
 /* export handler block for lmabda*/
 exports.handler = (event, context, callback) => {
-  console.log('started lambda function');
-  console.log(event, null, 2);
-  if( event.path === '/edge') {
-    callback(null, defaulthappyresponse);
+  log("event_received", JSON.stringify(event));
+  let uri = event.Records[0].cf.request.uri;
+  log("event_uri", uri);
+  if (uri === '/issue') {
+    log("token_issue", "/issue");
+    let token = issue();
+    let response = JSON.parse(JSON.stringify(defaulthappyresponse));
+    response.body = token;
+    callback(null, response);
+  } else if (uri === '/test') {
+    log("token_test", "/test");
+    let token = issue();
+    let response = null;
+    let acceptedaud= ['dk', 'no'];
+    let acceptedsub = "id";
+    let acceptediss = "urn:companyname:productname";
+    if( tools.verifyTokenJWT(token, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null) ) {
+      log("token_test_auth", "/test");
+      response = JSON.parse(JSON.stringify(defaulthappyresponse));
+    } else {
+      log("token_test_unauth", "/test");
+      response = JSON.parse(JSON.stringify(unauthorisedresponse));
+    }
+    response.body = token;
+    callback(null, response);
   } else {
     var result = handle.processViewerRequest(event, unauthorisedresponse, options);
+    log("processed_viewer_request", JSON.stringify(result));
     let request = event.Records[0].cf.request;
+    log("request", JSON.stringify(request));
     if( result === unauthorisedresponse) {
+      log("unauth_return", JSON.stringify(unauthorisedresponse));
       callback(null, unauthorisedresponse);
     } else {
+      log("auth_return", JSON.stringify(request));
       callback(null, request);
     }
   }

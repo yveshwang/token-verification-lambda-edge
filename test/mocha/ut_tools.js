@@ -326,3 +326,12 @@ describe('tools.verifyTokenJWT - functional test', function() {
     expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
 });
+describe('some real life test cases', function() {
+  it( "case 1 - ", function() {
+    let acceptedaud= ['dk', 'no'];
+    let acceptedsub = "id";
+    let acceptediss = "urn:companyname:productname";
+    let testtoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTA5NjUwNTc1LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjoxNjA5NjUxMDk2LCJpYXQiOjE1MDk2NTEwOTZ9.x309s0X7bipKKY3UYSD6R9dg_ndgaoAluNfBnKzwE4U";
+    expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
+  });
+});
