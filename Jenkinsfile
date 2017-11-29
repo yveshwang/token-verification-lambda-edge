@@ -3,7 +3,12 @@ pipeline {
   agent none
   stages {
     stage('unit tests') {
-      agent { docker 'node:6.12.0' }
+      agent {
+        docker {
+          image 'node:6.12.0'
+          args '-u root'
+        }
+      }
       steps {
         sh 'npm --version'
         sh 'npm install'
@@ -18,6 +23,9 @@ pipeline {
         }
       }
       steps {
+        sh 'pwd'
+        sh 'whoami'
+        sh 'npm install'
         sh 'npm install -g aws-sam-local'
         sh 'sam local invoke "Edge" -e test/test.json'
         sh 'sam local invoke "Edge" -e test/good_cred.json'
