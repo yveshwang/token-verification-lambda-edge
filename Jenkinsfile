@@ -15,6 +15,7 @@ pipeline {
         docker {
           image 'node:6.12.0'
           args '-u root'
+        }
       }
       steps {
         sh 'npm install -g aws-sam-local'
