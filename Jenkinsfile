@@ -11,7 +11,11 @@ pipeline {
       }
     }
     stage ('integration tests') {
-      agent { docker 'node:6.12.0' }
+      agent {
+        docker {
+          image 'node:6.12.0'
+          args '-u root'
+      }
       steps {
         sh 'npm install -g aws-sam-local'
         sh 'sam local invoke "Edge" -e test/test.json'
