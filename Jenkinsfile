@@ -34,9 +34,9 @@ pipeline {
       steps {
         sh 'pwd'
         sh 'echo be sure to use the file from the docker host'
-        sh 'sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/test.json Edge'
-        sh 'sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/good_cred.json Edge'
-        sh 'sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/bad_cred.json Edge'
+        sh '. /root/.nvm/nvm.sh ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/test.json Edge'
+        sh '. /root/.nvm/nvm.sh ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/good_cred.json Edge'
+        sh '. /root/.nvm/nvm.sh ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/bad_cred.json Edge'
       }
     }
   }
