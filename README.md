@@ -83,7 +83,22 @@ sam local invoke "Edge" -e test/bad_cred.json
 sam local start-api         # then test via curl http://127.0.0.1:3000/edge
 
 ```
-# deployment
+# integration test with docker
+Feel free to use the `Dockerfile` supplied. For example:
+
+```
+docker build -t yves/samlocal:latest .
+docker run -ti -v "$(pwd)":/workspace -v /var/run/docker.sock:/var/run/docker.sock yves/samlocal:latest bash
+```
+
+then you could do this inside the container...
+
+```
+source /root/.nvm/nvm.sh
+sam local invoke --docker-volume-basedir "<the director from the docker host>/token-verification-lambda-edge" -e test/good_cred.json Edge
+```
+
+note that `--docker-volume-basedir` works with the directory structure from where `dockerd` is running.
 
 # license
 MIT
