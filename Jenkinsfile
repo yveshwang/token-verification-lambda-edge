@@ -34,9 +34,9 @@ pipeline {
       steps {
         sh 'pwd'
         sh 'echo be sure to use the file from the docker host'
-        sh '. /root/.nvm/nvm.sh ; npm run-script dist ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/test.json Edge'
-        sh '. /root/.nvm/nvm.sh ; npm run-script dist ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/good_cred.json Edge'
-        sh '. /root/.nvm/nvm.sh ; npm run-script dist ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/bad_cred.json Edge'
+        sh '. /root/.nvm/nvm.sh ; npm install --production ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/test.json Edge'
+        sh '. /root/.nvm/nvm.sh ; npm install --production ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/good_cred.json Edge'
+        sh '. /root/.nvm/nvm.sh ; npm install --production ; sam local invoke --docker-volume-basedir /vagrant/jenkins-data/workspace/pipelines-token-verification-lambda-edge -e test/bad_cred.json Edge'
       }
     }
   }
