@@ -21,9 +21,7 @@ pipeline {
         }
       }
       steps {
-        sh '. /root/.nvm/nvm.sh'
-        sh 'npm --version'
-        sh 'node --version'
+        sh '. /root/.nvm/nvm.sh ; npm --version ; node --version'
       }
     }
     stage ('integration tests') {
