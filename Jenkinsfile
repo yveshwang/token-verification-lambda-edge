@@ -28,7 +28,7 @@ pipeline {
       agent {
         docker {
           image 'yves/samlocal:latest'
-          args '-v /var/run/docker.sock:/var/run/docker.sock -v \"$(pwd):/workspace\"'
+          args "-v /var/run/docker.sock:/var/run/docker.sock -v ${pwd()}:/workspace"
         }
       }
       steps {
