@@ -20,6 +20,11 @@ pipeline {
           additionalBuildArgs '-t yves/samlocal:latest'
         }
       }
+      steps {
+        sh '. /root/.nvm/nvm.sh'
+        sh 'npm --version'
+        sh 'node --version'
+      }
     }
     stage ('integration tests') {
       agent {
