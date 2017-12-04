@@ -302,27 +302,22 @@ describe('tools.verifyTokenJWT - functional test', function() {
     let sub = "id";
     let aud = "no";
     let iss = "urn:companyname:productname";
-    let iat = 1509651096;
-    let nbf = 1509650575;
-    let exp = 1609651096;
+    let iat = Math.floor(Date.now() / 1000);  //issued right now.
+    let nbf = iat - 1000; //valid right now.
+    let exp = 9609651096;
     let testpayload = {sub:sub,aud:aud,iss:iss,nbf:nbf,name:"John Doe",admin:true,exp:exp,iat:iat};
-    // console.log(testpayload);
     let testtoken = tools.signTokenJWT(testpayload, secret, false);
-    // console.log(testtoken);
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = iss;
-    // function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
     expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
   it( "real use case from payload.data", function() {
     let obj = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
-    //console.log(obj);
     let testtoken = tools.signTokenJWT(obj, secret, false);
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = "urn:companyname:productname";
-    // function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
     expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
 });
@@ -331,7 +326,7 @@ describe('some real life test cases', function() {
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = "urn:companyname:productname";
-    let testtoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTA5NjUwNTc1LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjoxNjA5NjUxMDk2LCJpYXQiOjE1MDk2NTEwOTZ9.x309s0X7bipKKY3UYSD6R9dg_ndgaoAluNfBnKzwE4U";
+    let testtoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTEyMzc2MDQ3LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjo5NjA5NjUxMDk2LCJpYXQiOjE1MTIzNzcwNDd9.P6Kx-bnwdb3MGYdD_C7TAVhq_ma6ecDeRxMuQ1lny50";
     expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
 });
