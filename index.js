@@ -7,6 +7,7 @@ const clone = merge;
 
 envar.defaults( {
   verbose: true,                              // verbose logging for this lambda
+  urls: ['/verify'],                          // array of url to apply token verification
   secret: 'secret',                           // secret = shared secret used for the hmac value for this header
   headername: 'authorization',                // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
   audience: ['dk', 'no'],                     // aud = use locale as audience
@@ -20,7 +21,10 @@ envar.defaults( {
 });
 
 const verbose = envar('verbose');
+handle.logverbose = verbose;
+
 const options = [ {
+  'urls': envar('urls'),
   'headername': envar('headername'),
   'secret': envar('secret'),
   'audience': envar('audience'),
@@ -94,11 +98,6 @@ const defaulthappyresponse = {
   body: okcontent
 };
 
-function log(label, input) {
-  if(verbose) {
-    console.log(label + "=" + input);
-  }
-}
 function issue() {
   let payload = { "sub": "id",
     "aud": "no",
@@ -117,44 +116,44 @@ function issue() {
 }
 /* export handler block for lmabda*/
 exports.handler = (event, context, callback) => {
-  log("config", JSON.stringify(printFriendlyOptions));
-  log("event_received", JSON.stringify(event));
+  handle.log("config", JSON.stringify(printFriendlyOptions));
+  handle.log("event_received", JSON.stringify(event));
   let uri = event.Records[0].cf.request.uri;
   let clientip = event.Records[0].cf.request.clientIp;
-  log("client_ip", clientip);
-  log("event_uri", uri);
+  handle.log("client_ip", clientip);
+  handle.log("event_uri", uri);
   if (uri === '/issue') {
-    log("token_issue", "/issue");
+    handle.log("token_issue", "/issue");
     let token = issue();
     let response = JSON.parse(JSON.stringify(defaulthappyresponse));
     response.body = token;
     callback(null, response);
   } else if (uri === '/test') {
-    log("token_test", "/test");
+    handle.log("token_test", "/test");
     let token = issue();
     let response = null;
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = "urn:companyname:productname";
     if( tools.verifyTokenJWT(token, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null) ) {
-      log("token_test_auth", "/test");
+      handle.log("token_test_auth", "/test");
       response = JSON.parse(JSON.stringify(defaulthappyresponse));
     } else {
-      log("token_test_unauth", "/test");
+      handle.log("token_test_unauth", "/test");
       response = JSON.parse(JSON.stringify(unauthorisedresponse));
     }
     response.body = token;
     callback(null, response);
   } else {
     var result = handle.processViewerRequest(event, unauthorisedresponse, options);
-    log("processed_viewer_request", JSON.stringify(result));
+    handle.log("processed_viewer_request", JSON.stringify(result));
     let request = event.Records[0].cf.request;
-    log("request", JSON.stringify(request));
+    handle.log("request", JSON.stringify(request));
     if( result === unauthorisedresponse) {
-      log("unauth_return", JSON.stringify(unauthorisedresponse));
+      handle.log("unauth_return", JSON.stringify(unauthorisedresponse));
       callback(null, unauthorisedresponse);
     } else {
-      log("auth_return", JSON.stringify(request));
+      handle.log("auth_return", JSON.stringify(request));
       callback(null, request);
     }
   }
