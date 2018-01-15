@@ -1,20 +1,41 @@
 'use strict;'
 const handle = require('./src/handle.js');
 const tools = require('./src/tools.js');
-const verbose = true;
+const envar = require('envar');
+const merge = require('deeply');
+const clone = merge;
 
+envar.defaults( {
+  verbose: true,                              // verbose logging for this lambda
+  secret: 'secret',                           // secret = shared secret used for the hmac value for this header
+  headername: 'demo',                         // // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
+  audience: ['dk', 'no'],                     // aud = use locale as audience
+  issuer: ['urn:companyname:productname'],    // iss = fixed issuer urn
+  ignoreExpiration: false,                    // default to false, never ignoreExpiration
+  ignoreNotBefore: false,                     // default to false, never ignoreNotBefore
+  subject: 'id',                              // value could be id | payment which dictates if it is a identity token or payment token, or something else
+  clockTolerance: 0,                          // default to 0;
+  maxAge: '30d',                              // default to 30 days. we can always issue refresh token.
+  clockTimestamp: null                        // use system time.
+});
+
+const verbose = envar('verbose');
 const options = [ {
-  'headername': 'authorization',                // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
-  'secret': 'secret',                           // secret = shared secret used for the hmac value for this header
-  'audience': ['dk', 'no'],                     // aud = use locale as audience
-  'issuer': ['urn:companyname:productname'],    // iss = fixed issuer urn
-  'ignoreExpiration': false,                    // default to false, never ignoreExpiration
-  'ignoreNotBefore': false,                     // default to false, never ignoreNotBefore
-  'subject': 'id',                              // value could be id | payment which dictates if it is a identity token or payment token, or something else
-  'clockTolerance': 0,                          // default to 0;
-  'maxAge': '30d',                              // default to 30 days. we can always issue refresh token.
-  'clockTimestamp': null                        // use system time.
+  'headername': envar('headername'),
+  'secret': envar('secret'),
+  'audience': envar('audience'),
+  'issuer': envar('issuer'),
+  'ignoreExpiration': envar('ignoreExpiration'),
+  'ignoreNotBefore': envar('ignoreNotBefore'),
+  'subject': envar('subject'),
+  'clockTolerance': envar('clockTolerance'),
+  'maxAge': envar('maxAge'),
+  'clockTimestamp': envar('clockTimestamp')
 }];
+const printFriendlyOptions = clone(options);
+printFriendlyOptions.map( x => {
+  x.secret = "********";
+});
 
 const errorcontent = `
 <\!DOCTYPE html>
@@ -85,7 +106,7 @@ function issue() {
     "nbf": 1509650575,
     "name": "John Doe",
     "admin": true,
-    "exp": 1609651096,
+    "exp": 1709651096,
     "iat": 1509651096
   };
   let systime = Math.floor(Date.now() / 1000);
@@ -96,8 +117,11 @@ function issue() {
 }
 /* export handler block for lmabda*/
 exports.handler = (event, context, callback) => {
+  log("config", JSON.stringify(printFriendlyOptions));
   log("event_received", JSON.stringify(event));
   let uri = event.Records[0].cf.request.uri;
+  let clientip = event.Records[0].cf.request.clientIp;
+  log("client_ip", clientip);
   log("event_uri", uri);
   if (uri === '/issue') {
     log("token_issue", "/issue");

@@ -318,7 +318,7 @@ describe('tools.verifyTokenJWT - functional test', function() {
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = "urn:companyname:productname";
-    expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
+    expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '1000000d', null)).to.equal(true);
   });
 });
 describe('some real life test cases', function() {
@@ -326,7 +326,7 @@ describe('some real life test cases', function() {
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = "urn:companyname:productname";
-    let testtoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTEyMzc2MDQ3LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjo5NjA5NjUxMDk2LCJpYXQiOjE1MTIzNzcwNDd9.P6Kx-bnwdb3MGYdD_C7TAVhq_ma6ecDeRxMuQ1lny50";
+    let testtoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTE1MDE1NzU4LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjoyNTE2MDE1NzU4LCJpYXQiOjE1MTYwMTU3NTh9.AgPArcI7dcByXlizj2dD5m1WaFeLdI8EvSVf1TPZsBc";
     expect( tools.verifyTokenJWT(testtoken, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null)).to.equal(true);
   });
 });
