@@ -178,6 +178,7 @@ describe('handler.processViwerRequest tests', function() {
   }
   it("normalise querystring and uri", function() {
     let event = clone(requesteventjson);
+    event = appendRequestToHeader(requesteventjson, 'authorization', 'Authorization', bearervalue);
     let result = testRequest(event, [{'headername': 'authorization', 'secret': 'secret'}]);
     expect(result).to.equal(null);
     expect(event.Records[0].cf.request.querystring).to.equal('color=red&size=large');

@@ -16,14 +16,15 @@ module.exports = {
 function verifyToken(event, headername, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
   let request = event.Records[0].cf.request;
   let headers = request.headers;
-
   //verify token if exists
-  if( headers[headername] !== undefined && 0 < headers[headername].length ) {
+  if( headers[headername] !== undefined && headers[headername] !== null && 0 < headers[headername].length ) {
     let token = extractBearerToken(headers[headername][0].value);
     if( !tools.verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp)) {
       //return error
       return errorresponse;
     }
+  } else {
+    return errorresponse;
   }
   // proceeds as normal
   return null;

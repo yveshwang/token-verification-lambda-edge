@@ -8,7 +8,7 @@ const clone = merge;
 envar.defaults( {
   verbose: true,                              // verbose logging for this lambda
   secret: 'secret',                           // secret = shared secret used for the hmac value for this header
-  headername: 'demo',                         // // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
+  headername: 'authorization',                // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
   audience: ['dk', 'no'],                     // aud = use locale as audience
   issuer: ['urn:companyname:productname'],    // iss = fixed issuer urn
   ignoreExpiration: false,                    // default to false, never ignoreExpiration
@@ -106,7 +106,7 @@ function issue() {
     "nbf": 1509650575,
     "name": "John Doe",
     "admin": true,
-    "exp": 1709651096,
+    "exp": 9909651096,
     "iat": 1509651096
   };
   let systime = Math.floor(Date.now() / 1000);
