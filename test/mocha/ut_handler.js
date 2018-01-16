@@ -278,3 +278,21 @@ describe('handler.processViwerRequest tests', function() {
     expect(result).to.equal(errorresponse);
   });
 });
+
+describe('client ip checks.', function() {
+  function tokenise(ip) {
+    let payload = JSON.parse(fs.readFileSync('./test/payload.data', 'utf8'));
+    payload.jti = ip;
+    return tools.signTokenJWT(payload, 'secret', false);
+  }
+  it("good clientip", function() {
+    let ip = "192.168.0.10";
+    let testtoken = tokenise(ip);
+    expect( tools.verifyTokenJWT(testtoken, 'secret', ['no', 'dk'], 'urn:companyname:productname', false, false, 'id', 0, '1000000d', null, ip)).to.equal(true);
+  });
+  it("bad ip", function() {
+    let ip = "192.168.0.10";
+    let testtoken = tokenise(ip);
+    expect( tools.verifyTokenJWT(testtoken, 'secret', ['no', 'dk'], 'urn:companyname:productname', false, false, 'id', 0, '1000000d', null, "192.168.0.234")).to.equal(false);
+  });
+});
