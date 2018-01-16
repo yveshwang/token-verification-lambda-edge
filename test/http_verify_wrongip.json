@@ -6,7 +6,7 @@
           "distributionId": "EDFDVBD6EXAMPLE"
         },
         "request": {
-          "clientIp": "2001:0db8:85a3:0:0:8a2e:0370:7334",
+          "clientIp": "2002:0db8:85a3:0:0:8a2e:0370:7334",
           "method": "GET",
           "uri": "/verify",
           "querystring": "",

@@ -23,13 +23,13 @@ function log(label, input) {
   }
 }
 
-function verifyToken(event, headername, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+function verifyToken(event, headername, secret, errorresponse, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp, jti) {
   let request = event.Records[0].cf.request;
   let headers = request.headers;
   //verify token if exists
   if( headers[headername] !== undefined && headers[headername] !== null && 0 < headers[headername].length ) {
     let token = extractBearerToken(headers[headername][0].value);
-    if( !tools.verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp)) {
+    if( !tools.verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp, jti)) {
       //return error
       return errorresponse;
     }
@@ -50,6 +50,7 @@ function processViewerRequest(event, errorresponse, options) {
   if( reqid === null || reqid === undefined || empty(reqid.trim())) {
     reqid = md5(distroid + ":" + new Date().getTime());
   }
+  let clientip = event.Records[0].cf.request.clientIp;
   headers['x-req-id'] = [{'key': 'X-Req-Id', 'value': reqid}];
   //normalise
   request.querystring = tools.normaliseQuerystring(request.querystring);
@@ -59,7 +60,7 @@ function processViewerRequest(event, errorresponse, options) {
   return results =  options.map( x => {
     //if urls is not specified, then we assume we process all URL, else only take those url in the array.
     if(x.urls === undefined || x.urls === null || x.urls.indexOf(request.uri) > -1) {
-      return verifyToken(event, x.headername, x.secret, errorresponse, x.audience, x.issuer, x.ignoreExpiration, x.ignoreNotBefore, x.subject, x.clockTolerance, x.maxAge, x.clockTimestamp);
+      return verifyToken(event, x.headername, x.secret, errorresponse, x.audience, x.issuer, x.ignoreExpiration, x.ignoreNotBefore, x.subject, x.clockTolerance, x.maxAge, x.clockTimestamp, x.clientip ? clientip : null);
     } else {
       log("pass_through", request.uri);
       return null;

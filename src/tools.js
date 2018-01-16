@@ -57,7 +57,7 @@ function signTokenJWT(payload, secret, ignoreTimestamp) {
   return token;
 }
 
-function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp) {
+function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignoreNotBefore, subject, clockTolerance, maxAge, clockTimestamp, jti) {
   try {
     var options = {"algorithms": defaultalg};
     if( typeof audience !== 'undefined' && audience !== null) {
@@ -91,6 +91,10 @@ function verifyTokenJWT(token, secret, audience, issuer, ignoreExpiration, ignor
     }
     if( typeof clockTimestamp === 'number' && clockTimestamp !== null) {
       options.clockTimestamp = clockTimestamp;
+    }
+    if( typeof jti === 'string' && jti !== null) {
+      //check this string, for example use this for client ip
+      options.jwtid = jti;
     }
     let decoded = jwt.verify(token, secret, options);
     return true;

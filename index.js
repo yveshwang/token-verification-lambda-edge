@@ -7,6 +7,7 @@ const clone = merge;
 
 envar.defaults( {
   verbose: true,                              // verbose logging for this lambda
+  clientip: true,                             // hash and check clientip as jti
   urls: ['/verify'],                          // array of url to apply token verification
   secret: 'secret',                           // secret = shared secret used for the hmac value for this header
   headername: 'authorization',                // headername = name of the header to verify, usually lower case, following AWS Lambda Event structure
@@ -24,6 +25,7 @@ const verbose = envar('verbose');
 handle.logverbose = verbose;
 
 const options = [ {
+  'clientip': envar('clientip'),
   'urls': envar('urls'),
   'headername': envar('headername'),
   'secret': envar('secret'),
@@ -132,12 +134,12 @@ exports.handler = (event, context, callback) => {
     callback(null, response);
   } else if (uri === '/test') {
     handle.log("token_test", "/test");
-    let token = issue();
+    let token = issue(clientip);
     let response = null;
     let acceptedaud= ['dk', 'no'];
     let acceptedsub = "id";
     let acceptediss = "urn:companyname:productname";
-    if( tools.verifyTokenJWT(token, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null) ) {
+    if( tools.verifyTokenJWT(token, 'secret', acceptedaud, acceptediss, false, false, acceptedsub, 0, '30d', null, clientip) ) {
       handle.log("token_test_auth", "/test");
       response = JSON.parse(JSON.stringify(defaulthappyresponse));
     } else {
