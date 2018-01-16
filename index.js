@@ -98,7 +98,7 @@ const defaulthappyresponse = {
   body: okcontent
 };
 
-function issue() {
+function issue(ip) {
   let payload = { "sub": "id",
     "aud": "no",
     "iss": "urn:companyname:productname",
@@ -106,12 +106,14 @@ function issue() {
     "name": "John Doe",
     "admin": true,
     "exp": 9909651096,
-    "iat": 1509651096
+    "iat": 1509651096,
+    "jti": "someipaddresshereplease"
   };
   let systime = Math.floor(Date.now() / 1000);
   payload.iat = systime;
   payload.exp = systime + 1000000000;
   payload.nbf = systime - 1000000;
+  payload.jti = ip;
   return tools.signTokenJWT(payload, 'secret', false);
 }
 /* export handler block for lmabda*/
@@ -124,7 +126,7 @@ exports.handler = (event, context, callback) => {
   handle.log("event_uri", uri);
   if (uri === '/issue') {
     handle.log("token_issue", "/issue");
-    let token = issue();
+    let token = issue(clientip);
     let response = JSON.parse(JSON.stringify(defaulthappyresponse));
     response.body = token;
     callback(null, response);
