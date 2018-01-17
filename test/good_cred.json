@@ -26,7 +26,7 @@
             "authorization": [
               {
                 "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTE1MDIxMDI3LCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjoyNTE2MDIxMDI3LCJpYXQiOjE1MTYwMjEwMjd9.UiWJnN82cA-C2lrTg8oacUGrQbBU3llSjnLBxp1hV2I"
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpZCIsImF1ZCI6Im5vIiwiaXNzIjoidXJuOmNvbXBhbnluYW1lOnByb2R1Y3RuYW1lIiwibmJmIjoxNTE1MTc3NTYwLCJuYW1lIjoiSm9obiBEb2UiLCJhZG1pbiI6dHJ1ZSwiZXhwIjoyNTE2MTc3NTYwLCJpYXQiOjE1MTYxNzc1NjAsImp0aSI6IjIwMDE6MGRiODo4NWEzOjA6MDo4YTJlOjAzNzA6NzMzNCJ9.hNF-VbEljQsB0VY_Hid7vh9V6UcaxIQkIc79vk93ajY"
               }
             ]
           }
